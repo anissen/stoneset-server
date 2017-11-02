@@ -69,8 +69,7 @@ server_Server.main = function() {
 		}
 		console.log("You got served!");
 	});
-	server1.listen(1337,"localhost");
-	console.log("Server running at http://127.0.0.1:1337/");
+	server1.listen(80,"localhost");
 };
 var sys_FileSystem = function() { };
 sys_FileSystem.exists = function(path) {
