@@ -1,0 +1,8 @@
+{
+  "name": "anissen-solitaire",
+  "version": "0.0.1",
+  "description": "...",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
