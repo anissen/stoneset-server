@@ -69,7 +69,12 @@ server_Server.main = function() {
 		}
 		console.log("You got served!");
 	});
-	server1.listen(5000,"localhost");
+	var port = Std.parseInt(process.env["port"]);
+	if(port == null) {
+		port = 5000;
+	}
+	server1.listen(port,"localhost");
+	console.log("Server running at port " + port);
 };
 var sys_FileSystem = function() { };
 sys_FileSystem.exists = function(path) {
