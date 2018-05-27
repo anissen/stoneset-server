@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stoneset leaderboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Stoneset leaderboard</h1>
+
+  <ul class="scores">
+  <% for(var i = 0; i < scores.length; i++) { %>
+    <li class="name">
+      <span>Score: <%= scores[i].score %></span><br/>
+      <span>UserID: <%= scores[i].user_id %></span>
+    </li>
+  <% } %>
+  </ul>
+
+  <!--
+  <h2>Add a name</h2>
+
+  <form action="/scores" method="POST">
+    <input type="text" placeholder="score" name="score">
+    <input type="text" placeholder="name" name="name">
+    <button type="submit">Submit</button>
+  </form>
+
+  <div>
+    <h2>Replace last name written by Master Yoda with a name written by Darth Vadar</h2>
+    <button id="update"> Darth Vadar invades! </button>
+  </div>
+
+  <div>
+    <h2>Delete Darth Vadar's first name</h2>
+    <button id="delete"> Delete first Darth Vadar name </button>
+  </div>
+
+  <script src="main.js"></script>
+-->
+
+</body>
+</html>
