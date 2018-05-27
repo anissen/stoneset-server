@@ -6,7 +6,7 @@ const secrets = require('./secrets')
 
 var db
 
-MongoClient.connect('mongodb://' + secrets.user + ':' + secrets.password + '@ds235180.mlab.com:35180/stoneset', (err, database) => {
+MongoClient.connect(process.env.MONGOLAB_URI, (err, database) => {
     if (err) return console.log(err)
     db = database
     const port = process.env.PORT || 3000;
