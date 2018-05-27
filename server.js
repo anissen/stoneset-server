@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const MongoClient = require('mongodb').MongoClient
-const secrets = require('./secrets')
+// const secrets = require('./secrets')
 
 var db
 
