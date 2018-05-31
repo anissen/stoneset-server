@@ -9,7 +9,7 @@ var db
 MongoClient.connect(process.env.MONGOLAB_URI, (err, database) => {
     if (err) return console.log(err)
     db = database
-    const port = process.env.PORT || 3000;
+    const port = process.env.PORT || 3000
     app.listen(port, () => {
         console.log('Listening on port ' + port)
     })
@@ -30,6 +30,27 @@ function get_scores(query, cb) {
     })
 }
 
+app.get('/', (req, res) => {
+    get_scores({}, (err, result) => {
+        if (err) return
+        res.render('index.ejs', { scores: result })
+    })
+})
+
+/*
+app.get('/:seed', (req, res) => {
+    const seed = parseInt(req.params.seed)
+    // if (isNaN(seed)) return
+    console.log('seed: ' + seed)
+    const query = !isNaN(seed) ? { seed: seed } : {}
+    get_scores(query, (err, result) => {
+        console.log(err)
+        console.log(result)
+        if (err) return
+        res.render('index.ejs', { scores: result })
+    })
+})
+
 app.get('/:year/:month/:day/:game_mode/:game_count', (req, res) => {
     const year = parseInt(req.params.year)
     const month = parseInt(req.params.month)
@@ -44,21 +65,14 @@ app.get('/:year/:month/:day/:game_mode/:game_count', (req, res) => {
         game_mode: game_mode,
         game_count: game_count
     }, (err, result) => {
-        if (err) return;
+        if (err) return
         res.render('index.ejs', { scores: result })
     })
 })
-
-app.get('/:seed', (req, res) => {
-    const seed = parseInt(req.params.seed)
-    if (isNaN(seed)) return
-    get_scores({ seed: seed }, (err, result) => {
-        if (err) return;
-        res.render('index.ejs', { scores: result })
-    })
-})
+*/
 
 app.post('/scores', (req, res) => {
+    console.log(req)
     db.collection('scores').save({
         user_id: parseInt(req.body.user_id),
         score: parseInt(req.body.score),
