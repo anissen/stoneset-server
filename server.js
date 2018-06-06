@@ -21,7 +21,7 @@ app.use(bodyParser.json())
 app.use(express.static('public'))
 
 function get_scores(query, cb) {
-    db.collection('scores').find(query).sort({ score: 1 }).toArray((err, result) => {
+    db.collection('scores').find(query).sort({ score: -1 }).toArray((err, result) => {
         if (err) {
             console.log(err)
             return cb(err)
@@ -72,9 +72,9 @@ app.get('/:year/:month/:day/:game_mode/:game_count', (req, res) => {
 */
 
 app.post('/scores', (req, res) => {
-    console.log(req)
     db.collection('scores').save({
         user_id: parseInt(req.body.user_id),
+        user_name: req.body.user_name,
         score: parseInt(req.body.score),
         seed: parseInt(req.body.seed),
         year: parseInt(req.body.year),
@@ -84,9 +84,11 @@ app.post('/scores', (req, res) => {
         game_count: parseInt(req.body.game_count),
         actions: req.body.actions
     }, (err, result) => {
-        if (err) return console.log(err)
-        console.log('saved to database')
-        res.redirect('/')
+        if (err) console.log('Could not save score to database! Error: ' + err)
+        get_scores({}, (err_load, result) => {
+            if (err_load) console.log('Could not load scores from database! Error: ' + err)
+            res.json(result)
+        })
     })
 })
 
