@@ -8,13 +8,18 @@
 <body>
   <h1>Stoneset leaderboard</h1>
 
+  <% const game_mode_scores = _.groupBy(scores, 'game_mode'); %>
+  <% _.forEach(game_mode_scores, function(scores, game_mode) { %>
+  <% const game_mode_string = { '0': 'Normal', '1': 'Strive', '2': 'Survival' }[game_mode]; %>
+  <h2><em><%= game_mode_string %></em></h2>
   <ul class="scores">
-  <% for(var i = 0; i < scores.length; i++) { %>
+    <% _.forEach(scores, function(score) { %>
     <li class="name">
-      <%= scores[i].score %> <em><%= scores[i].user_name %></em> <%= scores[i].game_mode %>
+        <span title="<%= score.year %>-<%= score.month %>-<%= score.day %>, game #<%= score.game_count %>"><%= score.score %> <em><%= score.user_name %></em></span>
     </li>
-  <% } %>
+    <% }) %>
   </ul>
+  <% }) %>
 
   <!--
   <h2>Add a name</h2>

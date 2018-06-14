@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const MongoClient = require('mongodb').MongoClient
-// const secrets = require('./secrets')
+const _ = require('lodash')
 
 var db
 
@@ -19,6 +19,7 @@ app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(express.static('public'))
+app.locals._ = _;
 
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
