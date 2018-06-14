@@ -90,11 +90,13 @@ app.get('/:year/:month/:day/:game_mode/:game_count', (req, res) => {
 */
 
 app.post('/scores', (req, res) => {
+    const seed = parseInt(req.body.seed);
     db.collection('scores').save({
         user_id: parseInt(req.body.user_id),
         user_name: req.body.user_name,
         score: parseInt(req.body.score),
-        seed: parseInt(req.body.seed),
+        strive_goal: parseInt(req.body.strive_goal),
+        seed: seed,
         year: parseInt(req.body.year),
         month: parseInt(req.body.month),
         day: parseInt(req.body.day),
@@ -103,7 +105,7 @@ app.post('/scores', (req, res) => {
         actions: req.body.actions
     }, (err, result) => {
         if (err) console.log('Could not save score to database! Error: ' + err)
-        get_scores({}, (err_load, result) => {
+        get_scores({ seed: seed }, (err_load, result) => {
             if (err_load) console.log('Could not load scores from database! Error: ' + err)
             res.json(result)
         })

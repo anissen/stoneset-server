@@ -11,8 +11,7 @@
   <ul class="scores">
   <% for(var i = 0; i < scores.length; i++) { %>
     <li class="name">
-      <span>Score: <%= scores[i].score %></span><br/>
-      <span>UserID: <%= scores[i].user_id %></span>
+      <%= scores[i].score %> <em><%= scores[i].user_name %></em> <%= scores[i].game_mode %>
     </li>
   <% } %>
   </ul>
