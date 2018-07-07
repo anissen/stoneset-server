@@ -91,25 +91,88 @@ app.get('/:year/:month/:day/:game_mode/:game_count', (req, res) => {
 */
 
 app.post('/scores', (req, res) => {
+    console.log(req.body);
     const seed = parseInt(req.body.seed);
+    const score = parseInt(req.body.score);
+    const year = parseInt(req.body.year);
+    const month = parseInt(req.body.month);
+    const day = parseInt(req.body.day);
     db.collection('scores').save({
-        user_id: parseInt(req.body.user_id),
+        user_id: req.body.user_id,
         user_name: req.body.user_name,
-        score: parseInt(req.body.score),
+        score: score,
         strive_goal: parseInt(req.body.strive_goal),
         seed: seed,
-        year: parseInt(req.body.year),
-        month: parseInt(req.body.month),
-        day: parseInt(req.body.day),
+        year: year,
+        month: month,
+        day: day,
         game_mode: parseInt(req.body.game_mode),
         game_count: parseInt(req.body.game_count),
         actions: req.body.actions
     }, (err, result) => {
         if (err) console.log('Could not save score to database! Error: ' + err)
+
         get_scores({ seed: seed }, (err_load, result) => {
             if (err_load) console.log('Could not load scores from database! Error: ' + err)
+            
+            console.log('result: ' + JSON.stringify(result));
+
+            var won_games = _.filter(result, function (res) { return score > res.score });
+            var wins = won_games.length
+            console.log('wins: ' + wins);
+
+            var lost_games = _.filter(result, function (res) { return score < res.score });
+            var losesToUsers = _.map(lost_games, function (res) { return res.user_id })
+
+            console.log('losesToUsers: ' + JSON.stringify(losesToUsers));
+
+            // update total score in the user collection
+            db.collection('users').update({ user_id: req.body.user_id }, { $inc: { total_wins: wins } }, { upsert: true }) // add wins for this user
+            db.collection('users').update({ user_id: { $in: losesToUsers } }, { $inc: { total_wins: 1 } }, { multi: true }) // increase wins for all users with greater scores
+
+            // update daily score in the daily score collection
+            db.collection('daily_wins').update({ user_id: req.body.user_id, year: year, month: month, day: day }, { $inc: { wins: wins } }, { upsert: true }) // add wins for this user
+            db.collection('daily_wins').update({ user_id: { $in: losesToUsers }, year: year, month: month, day: day }, { $inc: { wins: 1 } }, { multi: true }) // increase wins for all users with greater scores
+
             res.json(result)
         })
+    })
+})
+
+/*
+for each seed:
+    get all scores, sorted by score
+    add points to user_id for all remaining items in scores list
+sort user_id list by points
+*/
+
+app.get('/rank', (req, res) => {
+    db.collection('users').find().sort({ total_wins: -1 }).toArray((err, result) => {
+        if (err) {
+            console.log(err)
+            return cb(err)
+        }
+
+        return res.json(result)
+    })
+})
+
+app.get('/rank/:user_id', (req, res) => {
+    const user_id = req.params.user_id
+    console.log('user_id: ' + user_id)
+    if (isNaN(user_id)) return res.status(500).send('user id not specified')
+
+    db.collection('users').find().sort({ total_wins: -1 }).toArray((err, result) => {
+        if (err) {
+            console.log(err)
+            return cb(err)
+        }
+
+        const me = _.find(result, function (user) { return user.user_id == user_id; });
+
+        // const rank = _.findIndex(result, function (user) { return user.user_id == user_id; }) // no tie breaking (ie. two users with same number of wins will get different rank)
+        const rank = _.findIndex(result, function (user) { return user.total_wins == me.total_wins; }) // with tie breaking (ie. two users with same number of wins will get the same rank)
+        return res.json({ rank: rank, players: result.length });
     })
 })
 
