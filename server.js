@@ -169,10 +169,13 @@ app.get('/rank/:user_id', (req, res) => {
         }
 
         const me = _.find(result, function (user) { return user.user_id == user_id; });
+        if (!me) {
+            return res.json({ rank: -1, players: result.length, wins: 0 });
+        }
 
         // const rank = _.findIndex(result, function (user) { return user.user_id == user_id; }) // no tie breaking (ie. two users with same number of wins will get different rank)
         const rank = _.findIndex(result, function (user) { return user.total_wins == me.total_wins; }) // with tie breaking (ie. two users with same number of wins will get the same rank)
-        return res.json({ rank: rank, players: result.length, wins: (me ? me.total_wins : 0 )});
+        return res.json({ rank: rank, players: result.length, wins: me.total_wins});
     })
 })
 
