@@ -40,7 +40,7 @@ app.use(function (req, res, next) {
 })
 
 function get_scores(query, cb) {
-    db.collection('scores').find(query).sort({ score: -1 }).toArray((err, result) => {
+    db.collection('scores').find(query).sort({ strive_goal: -1, score: -1 }).toArray((err, result) => {
         if (err) {
             console.log(err)
             return cb(err)

@@ -15,7 +15,13 @@
   <ul class="scores">
     <% _.forEach(scores, function(score) { %>
     <li class="name">
-        <span title="<%= score.year %>-<%= score.month %>-<%= score.day %>, game #<%= score.game_count %>"><%= score.score %> <em><%= score.user_name %></em></span>
+        <span title="<%= score.year %>-<%= score.month + 1 %>-<%= score.day + 1 %>, game #<%= score.game_count %>">
+        <% if (game_mode_string == 'Strive') { %>
+            <span style="color: <%= (score.score >= score.strive_goal ? 'green' : 'red') %>"><%= score.strive_goal %> (<%= score.score %>)</span>
+        <% } else { %>
+            <%= score.score %>
+        <% } %>
+         <em><%= score.user_name %></em></span>
     </li>
     <% }) %>
   </ul>
