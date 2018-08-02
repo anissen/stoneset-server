@@ -11,20 +11,25 @@
   <% const game_mode_scores = _.groupBy(scores, 'game_mode'); %>
   <% _.forEach(game_mode_scores, function(scores, game_mode) { %>
   <% const game_mode_string = { '0': 'Normal', '1': 'Strive', '2': 'Survival' }[game_mode]; %>
-  <h2><em><%= game_mode_string %></em></h2>
-  <ul class="scores">
-    <% _.forEach(scores, function(score) { %>
-    <li class="name">
+  <% if (show_all_scores === true) { %>
+    <h2><%= game_mode_string %> (<a href="/">Back</a>)</h2>
+  <% } else { %>
+    <h2><a href="/<%= game_mode_string.toLowerCase() %>"><%= game_mode_string %></a></h2>
+  <% } %>
+  <ol>
+    <% _.forEach(scores, function(score, i) { %>
+    <% if (show_all_scores === false && i > 9) return; %>
+    <li>
         <span title="<%= score.year %>-<%= score.month + 1 %>-<%= score.day + 1 %>, game #<%= score.game_count %>">
         <% if (game_mode_string == 'Strive') { %>
             <span style="color: <%= (score.score >= score.strive_goal ? 'green' : 'red') %>"><%= score.strive_goal %> (<%= score.score %>)</span>
         <% } else { %>
             <%= score.score %>
         <% } %>
-         <em><%= score.user_name %></em></span>
+        <em><%= score.user_name %></em></span>
     </li>
     <% }) %>
-  </ul>
+  </ol>
   <% }) %>
 
   <!--

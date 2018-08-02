@@ -1,2 +1,6 @@
 node_modules
+mlab_backup
+
 secrets.js
+setup_mongodb_url.sh
+backup_db.sh

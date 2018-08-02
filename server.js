@@ -52,43 +52,37 @@ function get_scores(query, cb) {
 app.get('/', (req, res) => {
     get_scores({}, (err, result) => {
         if (err) return
-        res.render('index.ejs', { scores: result })
+        res.render('index.ejs', { scores: result, show_all_scores: false })
     })
 })
 
-/*
-app.get('/:seed', (req, res) => {
-    const seed = parseInt(req.params.seed)
-    // if (isNaN(seed)) return
-    console.log('seed: ' + seed)
-    const query = !isNaN(seed) ? { seed: seed } : {}
-    get_scores(query, (err, result) => {
-        console.log(err)
-        console.log(result)
+app.get('/all', (req, res) => {
+    get_scores({}, (err, result) => {
         if (err) return
-        res.render('index.ejs', { scores: result })
+        res.render('index.ejs', { scores: result, show_all_scores: true })
     })
 })
 
-app.get('/:year/:month/:day/:game_mode/:game_count', (req, res) => {
-    const year = parseInt(req.params.year)
-    const month = parseInt(req.params.month)
-    const day = parseInt(req.params.day)
-    const game_mode = parseInt(req.params.game_mode)
-    const game_count = parseInt(req.params.game_count)
-    if (isNaN(year) || isNaN(month) || isNaN(day) || isNaN(game_mode) || isNaN(game_count)) return
-    get_scores({
-        year: year,
-        month: month,
-        day: day,
-        game_mode: game_mode,
-        game_count: game_count
-    }, (err, result) => {
+app.get('/normal', (req, res) => {
+    get_scores({ game_mode: 0 }, (err, result) => {
         if (err) return
-        res.render('index.ejs', { scores: result })
+        res.render('index.ejs', { scores: result, show_all_scores: true })
     })
 })
-*/
+
+app.get('/strive', (req, res) => {
+    get_scores({ game_mode: 1 }, (err, result) => {
+        if (err) return
+        res.render('index.ejs', { scores: result, show_all_scores: true })
+    })
+})
+
+app.get('/survival', (req, res) => {
+    get_scores({ game_mode: 2 }, (err, result) => {
+        if (err) return
+        res.render('index.ejs', { scores: result, show_all_scores: true })
+    })
+})
 
 app.post('/scores', (req, res) => {
     console.log(req.body);
@@ -178,26 +172,3 @@ app.get('/rank/:user_id', (req, res) => {
         return res.json({ rank: rank, players: result.length, wins: me.total_wins});
     })
 })
-
-// app.put('/scores', (req, res) => {
-//     db.collection('scores')
-//         .findOneAndUpdate({ name: 'Yoda' }, {
-//             $set: {
-//                 score: req.body.score,
-//                 name: req.body.name
-//             }
-//         }, {
-//                 sort: { _id: -1 },
-//                 upsert: true
-//             }, (err, result) => {
-//                 if (err) return res.send(err)
-//                 res.send(result)
-//             })
-// })
-
-// app.delete('/scores', (req, res) => {
-//     db.collection('scores').findOneAndDelete({ name: req.body.name }, (err, result) => {
-//         if (err) return res.send(500, err)
-//         res.send('A darth vadar quote got deleted')
-//     })
-// })
