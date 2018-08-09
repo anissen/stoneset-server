@@ -85,7 +85,6 @@ app.get('/survival', (req, res) => {
 })
 
 app.post('/scores', (req, res) => {
-    console.log(req.body);
     const seed = parseInt(req.body.seed);
     const score = parseInt(req.body.score);
     const year = parseInt(req.body.year);
@@ -130,6 +129,19 @@ app.post('/scores', (req, res) => {
 
             res.json(result)
         })
+    })
+})
+
+app.post('/change_name', (req, res) => {
+    const user_id = req.body.user_id
+    const user_name = req.body.user_name
+    if (!user_name || user_name.length < 2 || user_name.length > 12) {
+        console.log('Invalid user name: ' + user_name)
+        return
+    }
+    db.collection('scores').update({ user_id: user_id }, { $set: { user_name: user_name } }, { multi: true }, (err, result) => {
+        if (err) console.log('Could not update user name! Error: ' + err)
+        res.json(err ? 'Error: ' + err : 'Name changed')
     })
 })
 

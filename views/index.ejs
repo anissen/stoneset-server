@@ -8,11 +8,14 @@
 <body>
   <h1>Stoneset leaderboard</h1>
 
+  <hr/>
+
   <% const game_mode_scores = _.groupBy(scores, 'game_mode'); %>
   <% _.forEach(game_mode_scores, function(scores, game_mode) { %>
   <% const game_mode_string = { '0': 'Normal', '1': 'Strive', '2': 'Survival' }[game_mode]; %>
   <% if (show_all_scores === true) { %>
-    <h2><%= game_mode_string %> (<a href="/">Back</a>)</h2>
+    <h2><a href="/">Back</a></h2>
+    <h2><%= game_mode_string %></h2>
   <% } else { %>
     <h2><a href="/<%= game_mode_string.toLowerCase() %>"><%= game_mode_string %></a></h2>
   <% } %>
