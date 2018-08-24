@@ -84,6 +84,24 @@ app.get('/survival', (req, res) => {
     })
 })
 
+app.get('/plays/:seed', (req, res) => {
+    console.log('plays/seed');
+    console.log('seed');
+    console.log(req.params.seed);
+    const seed = parseInt(req.params.seed);
+    db.collection('scores').find({ seed: seed }).toArray((err, result) => {
+        console.log('err');
+        console.log(err);
+        console.log('result');
+        console.log(result);
+        if (err) {
+            console.log(err)
+            return cb(err)
+        }
+        res.json({ plays: result.length })
+    })
+})
+
 app.post('/scores', (req, res) => {
     const seed = parseInt(req.body.seed);
     const score = parseInt(req.body.score);
