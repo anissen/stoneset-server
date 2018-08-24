@@ -85,15 +85,8 @@ app.get('/survival', (req, res) => {
 })
 
 app.get('/plays/:seed', (req, res) => {
-    console.log('plays/seed');
-    console.log('seed');
-    console.log(req.params.seed);
     const seed = parseInt(req.params.seed);
     db.collection('scores').find({ seed: seed }).toArray((err, result) => {
-        console.log('err');
-        console.log(err);
-        console.log('result');
-        console.log(result);
         if (err) {
             console.log(err)
             return cb(err)
@@ -126,16 +119,11 @@ app.post('/scores', (req, res) => {
         get_scores({ seed: seed }, (err_load, result) => {
             if (err_load) console.log('Could not load scores from database! Error: ' + err)
             
-            console.log('result: ' + JSON.stringify(result));
-
             var won_games = _.filter(result, function (res) { return score > res.score });
             var wins = won_games.length
-            console.log('wins: ' + wins);
 
             var lost_games = _.filter(result, function (res) { return score < res.score });
             var losesToUsers = _.map(lost_games, function (res) { return res.user_id })
-
-            console.log('losesToUsers: ' + JSON.stringify(losesToUsers));
 
             // update total score in the user collection
             db.collection('users').update({ user_id: req.body.user_id }, { $inc: { total_wins: wins } }, { upsert: true }) // add wins for this user
@@ -183,7 +171,6 @@ app.get('/rank', (req, res) => {
 
 app.get('/rank/:user_id', (req, res) => {
     const user_id = req.params.user_id
-    console.log('user_id: ' + user_id)
     if (isNaN(user_id)) return res.status(500).send('user id not specified')
 
     db.collection('users').find().sort({ total_wins: -1 }).toArray((err, result) => {
