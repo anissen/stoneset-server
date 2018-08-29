@@ -17,7 +17,7 @@
     <h2><a href="/">Back</a></h2>
     <h2><%= game_mode_string %></h2>
   <% } else { %>
-    <h2><a href="/<%= game_mode_string.toLowerCase() %>"><%= game_mode_string %></a></h2>
+    <h2><a href="/<%= (game_mode_string || '???').toLowerCase() %>"><%= game_mode_string %></a></h2>
   <% } %>
   <ol>
     <% _.forEach(scores, function(score, i) { %>
