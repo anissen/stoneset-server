@@ -96,6 +96,7 @@ app.get('/plays/:seed', (req, res) => {
 })
 
 app.post('/scores', (req, res) => {
+    const user_name = req.body.user_name;
     const seed = parseInt(req.body.seed);
     const score = parseInt(req.body.score);
     const year = parseInt(req.body.year);
@@ -103,7 +104,7 @@ app.post('/scores', (req, res) => {
     const day = parseInt(req.body.day);
     db.collection('scores').save({
         user_id: req.body.user_id,
-        user_name: req.body.user_name,
+        user_name: user_name,
         score: score,
         strive_goal: parseInt(req.body.strive_goal),
         seed: seed,
@@ -126,7 +127,7 @@ app.post('/scores', (req, res) => {
             var losesToUsers = _.map(lost_games, function (res) { return res.user_id })
 
             // update total score in the user collection
-            db.collection('users').update({ user_id: req.body.user_id }, { $inc: { total_wins: wins } }, { upsert: true }) // add wins for this user
+            db.collection('users').update({ user_id: req.body.user_id }, { $inc: { total_wins: wins }, $set: { user_name: user_name } }, { upsert: true }) // add wins for this user
             db.collection('users').update({ user_id: { $in: losesToUsers } }, { $inc: { total_wins: 1 } }, { multi: true }) // increase wins for all users with greater scores
 
             // update daily score in the daily score collection
@@ -146,8 +147,13 @@ app.post('/change_name', (req, res) => {
         return
     }
     db.collection('scores').update({ user_id: user_id }, { $set: { user_name: user_name } }, { multi: true }, (err, result) => {
-        if (err) console.log('Could not update user name! Error: ' + err)
-        res.json(err ? 'Error: ' + err : 'Name changed')
+        if (err) console.log('Could not update user name in scores! Error: ' + err)
+
+        db.collection('users').update({ user_id: user_id }, { $set: { user_name: user_name } }, (err, result) => {
+            if (err) console.log('Could not update user name in user! Error: ' + err)
+
+            res.json(err ? 'Error: ' + err : 'Name changed')
+        })
     })
 })
 
