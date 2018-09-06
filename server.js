@@ -103,6 +103,17 @@ app.get('/plays/:seed', (req, res) => {
     })
 })
 
+app.get('/rankpage', (req, res) => {
+    db.collection('users').find().sort({ total_wins: -1 }).toArray((err, result) => {
+        if (err) {
+            console.log(err)
+            return cb(err)
+        }
+
+        res.render('index.ejs', { scores: result, show_all_scores: true })
+    })
+})
+
 app.post('/scores', (req, res) => {
     const user_name = req.body.user_name;
     const seed = parseInt(req.body.seed);
