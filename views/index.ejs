@@ -22,12 +22,16 @@
     <h2><a href="/<%= (game_mode_string || '???').toLowerCase() %>"><%= game_mode_string %></a></h2>
   <% } %>
   <ol>
-    <% _.forEach(scores, function(score, i) { %>
+    <% var i = 0; %>
+    <% _.forEach(scores, function(score) { %>
+    <% if (game_mode_string == 'Strive' && score.score < score.strive_goal) return; %>
     <% if (show_all_scores === false && i > 9) return; %>
+    <% i++ %>
     <li>
         <span title="<%= score.year %>-<%= score.month + 1 %>-<%= score.day + 1 %>, game #<%= score.game_count %>">
         <% if (game_mode_string == 'Strive') { %>
-            <span style="color: <%= (score.score >= score.strive_goal ? 'green' : 'red') %>"><%= score.strive_goal %> (<%= score.score %>)</span>
+            <!-- <span style="color: <%= (score.score >= score.strive_goal ? 'green' : 'red') %>"> -->
+            <%= score.strive_goal %><span style="color:gray"> (+<%= (score.score - score.strive_goal) %>)</span></span>
         <% } else { %>
             <%= score.score %>
         <% } %>
