@@ -56,6 +56,14 @@ app.get('/', (req, res) => {
     })
 })
 
+app.get('/today', (req, res) => {
+    const now = new Date();
+    get_scores({ year: now.getFullYear(), month: now.getMonth(), day: now.getDate() }, (err, result) => {
+        if (err) return
+        res.render('index.ejs', { scores: result, show_all_scores: true })
+    })
+})
+
 app.get('/all', (req, res) => {
     get_scores({}, (err, result) => {
         if (err) return
