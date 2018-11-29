@@ -19,7 +19,7 @@ app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(express.static('public'))
-app.locals._ = _;
+app.locals._ = _
 
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
@@ -57,7 +57,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/today', (req, res) => {
-    const now = new Date();
+    const now = new Date()
     get_scores({ year: now.getFullYear(), month: now.getMonth(), day: now.getDate() }, (err, result) => {
         if (err) return
         res.render('index.ejs', { scores: result, show_all_scores: true })
@@ -93,7 +93,7 @@ app.get('/survival', (req, res) => {
 })
 
 app.get('/plays/:seed', (req, res) => {
-    const seed = parseInt(req.params.seed);
+    const seed = parseInt(req.params.seed)
     db.collection('scores').find({ seed: seed }).toArray((err, result) => {
         if (err) {
             console.log(err)
@@ -115,12 +115,12 @@ app.get('/rankpage', (req, res) => {
 })
 
 app.post('/scores', (req, res) => {
-    const user_name = req.body.user_name;
-    const seed = parseInt(req.body.seed);
-    const score = parseInt(req.body.score);
-    const year = parseInt(req.body.year);
-    const month = parseInt(req.body.month);
-    const day = parseInt(req.body.day);
+    const user_name = req.body.user_name
+    const seed = parseInt(req.body.seed)
+    const score = parseInt(req.body.score)
+    const year = parseInt(req.body.year)
+    const month = parseInt(req.body.month)
+    const day = parseInt(req.body.day)
     db.collection('scores').save({
         user_id: req.body.user_id,
         user_name: user_name,
@@ -139,10 +139,10 @@ app.post('/scores', (req, res) => {
         get_scores({ seed: seed }, (err_load, result) => {
             if (err_load) console.log('Could not load scores from database! Error: ' + err)
             
-            var won_games = _.filter(result, function (res) { return score > res.score });
+            var won_games = _.filter(result, function (res) { return score > res.score })
             var wins = won_games.length
 
-            var lost_games = _.filter(result, function (res) { return score < res.score });
+            var lost_games = _.filter(result, function (res) { return score < res.score })
             var losesToUsers = _.map(lost_games, function (res) { return res.user_id })
 
             // update total score in the user collection
@@ -204,13 +204,17 @@ app.get('/rank/:user_id', (req, res) => {
             return cb(err)
         }
 
-        const me = _.find(result, function (user) { return user.user_id == user_id; });
+        const me = _.find(result, function (user) {
+            return user.user_id == user_id
+        })
         if (!me) {
-            return res.json({ rank: -1, players: result.length, wins: 0 });
+            return res.json({ rank: -1, players: result.length, wins: 0 })
         }
 
         // const rank = _.findIndex(result, function (user) { return user.user_id == user_id; }) // no tie breaking (ie. two users with same number of wins will get different rank)
-        const rank = _.findIndex(result, function (user) { return user.total_wins == me.total_wins; }) // with tie breaking (ie. two users with same number of wins will get the same rank)
-        return res.json({ rank: rank, players: result.length, wins: me.total_wins});
+        const rank = _.findIndex(result, function (user) {
+            return user.total_wins == me.total_wins // with tie breaking (ie. two users with same number of wins will get the same rank)
+        })
+        return res.json({ rank: rank, players: result.length, wins: me.total_wins })
     })
 })
