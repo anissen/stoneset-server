@@ -115,24 +115,29 @@ app.get('/rankpage', (req, res) => {
 })
 
 app.post('/scores', (req, res) => {
+    const user_id = req.body.user_id
     const user_name = req.body.user_name
     const seed = parseInt(req.body.seed)
     const score = parseInt(req.body.score)
+    const strive_goal = parseInt(req.body.strive_goal)
     const year = parseInt(req.body.year)
     const month = parseInt(req.body.month)
     const day = parseInt(req.body.day)
+    const game_mode = parseInt(req.body.game_mode)
+    const game_count = parseInt(req.body.game_count)
+    const actions = req.body.actions
     db.collection('scores').save({
-        user_id: req.body.user_id,
+        user_id: user_id,
         user_name: user_name,
         score: score,
-        strive_goal: parseInt(req.body.strive_goal),
+        strive_goal: strive_goal,
         seed: seed,
         year: year,
         month: month,
         day: day,
-        game_mode: parseInt(req.body.game_mode),
-        game_count: parseInt(req.body.game_count),
-        actions: req.body.actions
+        game_mode: game_mode,
+        game_count: game_count,
+        actions: actions,
     }, (err, result) => {
         if (err) console.log('Could not save score to database! Error: ' + err)
 
