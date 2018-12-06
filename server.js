@@ -104,7 +104,7 @@ app.get('/plays/:seed', (req, res) => {
 })
 
 app.get('/rankpage', (req, res) => {
-    db.collection('users').find().sort({ total_wins: -1 }).toArray((err, result) => {
+    db.collection('users').find().sort({ total_stars: -1, total_wins: -1 }).toArray((err, result) => {
         if (err) {
             console.log(err)
             return cb(err)
@@ -126,6 +126,8 @@ app.post('/scores', (req, res) => {
     const game_mode = parseInt(req.body.game_mode)
     const game_count = parseInt(req.body.game_count)
     const actions = req.body.actions
+    const total_score = parseInt(req.body.total_score || 0)
+    const highest_journey_level_won = parseInt(req.body.highest_journey_level_won || 0)
     db.collection('scores').save({
         user_id: user_id,
         user_name: user_name,
@@ -137,7 +139,7 @@ app.post('/scores', (req, res) => {
         day: day,
         game_mode: game_mode,
         game_count: game_count,
-        actions: actions,
+        actions: actions
     }, (err, result) => {
         if (err) console.log('Could not save score to database! Error: ' + err)
 
@@ -146,17 +148,55 @@ app.post('/scores', (req, res) => {
             
             var won_games = _.filter(result, function (res) { return score > res.score })
             var wins = won_games.length
+            var winsOverUsers = _.map(won_games, function (res) { return res.user_id })
 
             var lost_games = _.filter(result, function (res) { return score < res.score })
+            var losses = lost_games.length
             var losesToUsers = _.map(lost_games, function (res) { return res.user_id })
 
+            db.collection('users').findOne({ user_id: user_id }, (err, user) => {
+                if (err || !user) {
+                    console.log(err)
+                    return cb(err)
+                }
+
+                function get_accumulated_journey_stars(level) {
+                    const acc_points = [0, 1, 2, 3, 4, 9, 11, 13, 15, 17, 27, 32, 37, 42, 47, 67, 77, 87, 97, 107, 147, 167, 187, 207, 227, 277, 317, 357, 397, 437, 537]
+                    if (level >= acc_points.length) return acc_points[acc_points.length - 1]
+                    return acc_points[level]
+                }
+
+                const score_stars = Math.floor(total_score / 1000)
+                const journey_stars = get_accumulated_journey_stars(highest_journey_level_won)
+
+                const old_wins = (user.total_wins || 0)
+                const new_wins = old_wins + wins
+                const old_losses = (user.total_losses || 0)
+                const new_losses = old_losses + losses
+                const data = {
+                    user_name: user_name,
+                    total_score: total_score,
+                    total_wins: new_wins,
+                    total_losses: new_losses,
+                    journey_stars: journey_stars,
+                    score_stars: score_stars,
+                    total_stars: new_wins + journey_stars + score_stars,
+                    highest_journey_level_won: highest_journey_level_won
+                }
+                console.log(data);
+                
+                // update total score in the user collection
+                db.collection('users').update({ user_id: user_id }, { $set: data }, { upsert: true }) // add wins for this 
+            })
+
             // update total score in the user collection
-            db.collection('users').update({ user_id: req.body.user_id }, { $inc: { total_wins: wins }, $set: { user_name: user_name } }, { upsert: true }) // add wins for this user
-            db.collection('users').update({ user_id: { $in: losesToUsers } }, { $inc: { total_wins: 1 } }, { multi: true }) // increase wins for all users with greater scores
+            //db.collection('users').update({ user_id: user_id }, { $inc: { total_wins: wins }, $set: { user_name: user_name, total_score: total_score, journey_stars: journey_stars, score_stars: score_stars } }, { upsert: true }) // add wins for this user
+            db.collection('users').update({ user_id: { $in: losesToUsers } }, { $inc: { total_wins: 1, total_stars: 1 } }, { multi: true }) // increase wins for all users with greater scores
+            db.collection('users').update({ user_id: { $in: winsOverUsers } }, { $inc: { total_losses: 1 } }, { multi: true }) // increase losses for all users with lesser scores
 
             // update daily score in the daily score collection
-            db.collection('daily_wins').update({ user_id: req.body.user_id, year: year, month: month, day: day }, { $inc: { wins: wins } }, { upsert: true }) // add wins for this user
-            db.collection('daily_wins').update({ user_id: { $in: losesToUsers }, year: year, month: month, day: day }, { $inc: { wins: 1 } }, { multi: true }) // increase wins for all users with greater scores
+            //db.collection('daily_wins').update({ user_id: user_id, year: year, month: month, day: day }, { $inc: { wins: wins } }, { upsert: true }) // add wins for this user
+            //db.collection('daily_wins').update({ user_id: { $in: lossesToUsers }, year: year, month: month, day: day }, { $inc: { losses: 1 } }, { multi: true }) // increase wins for all users with greater scores
 
             res.json(result)
         })
@@ -189,7 +229,7 @@ sort user_id list by points
 */
 
 app.get('/rank', (req, res) => {
-    db.collection('users').find().sort({ total_wins: -1 }).toArray((err, result) => {
+    db.collection('users').find().sort({ total_stars: -1, total_wins: -1 }).toArray((err, result) => {
         if (err) {
             console.log(err)
             return cb(err)
@@ -203,7 +243,7 @@ app.get('/rank/:user_id', (req, res) => {
     const user_id = req.params.user_id
     if (isNaN(user_id)) return res.status(500).send('user id not specified')
 
-    db.collection('users').find().sort({ total_wins: -1 }).toArray((err, result) => {
+    db.collection('users').find().sort({ total_stars: -1, total_wins: -1 }).toArray((err, result) => {
         if (err) {
             console.log(err)
             return cb(err)
@@ -213,13 +253,26 @@ app.get('/rank/:user_id', (req, res) => {
             return user.user_id == user_id
         })
         if (!me) {
-            return res.json({ rank: -1, players: result.length, wins: 0 })
+            return res.json({
+                rank: -1,
+                players: result.length,
+                total_wins: 0,
+                total_losses: 0,
+                total_stars: 0
+            })
         }
 
-        // const rank = _.findIndex(result, function (user) { return user.user_id == user_id; }) // no tie breaking (ie. two users with same number of wins will get different rank)
+        // const rank = _.findIndex(result, function (user) { return user.user_id == user_id }) // no tie breaking (ie. two users with same number of wins will get different rank)
         const rank = _.findIndex(result, function (user) {
-            return user.total_wins == me.total_wins // with tie breaking (ie. two users with same number of wins will get the same rank)
+            return user.total_stars == me.total_stars // with tie breaking (ie. two users with same number of wins will get the same rank)
         })
-        return res.json({ rank: rank, players: result.length, wins: me.total_wins })
+
+        return res.json({
+            rank: rank,
+            players: result.length,
+            total_wins: me.total_wins,
+            total_losses: me.total_losses,
+            total_stars: me.total_stars
+        })
     })
 })

@@ -32,8 +32,7 @@
     <li>
         <span title="<%= score.year %>-<%= score.month + 1 %>-<%= score.day %>, game #<%= score.game_count %> (seed: <%= score.seed %>)">
         <% if (game_mode_string == 'Strive') { %>
-            <!-- <span style="color: <%= (score.score >= score.strive_goal ? 'green' : 'red') %>"> -->
-            <%= score.strive_goal %><span style="color:gray"> (+<%= (score.score - score.strive_goal) %>)</span></span>
+            <%= score.strive_goal %><span style="color:gray"> (+<%= (score.score - score.strive_goal) %>)</span>
         <% } else { %>
             <%= score.score %>
         <% } %>
