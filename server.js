@@ -161,6 +161,7 @@ app.post('/scores', (req, res) => {
                 }
 
                 function get_accumulated_journey_stars(level) {
+                    if (level < 0) return 0;
                     const acc_points = [0, 1, 2, 3, 4, 9, 11, 13, 15, 17, 27, 32, 37, 42, 47, 67, 77, 87, 97, 107, 147, 167, 187, 207, 227, 277, 317, 357, 397, 437, 537]
                     if (level >= acc_points.length) return acc_points[acc_points.length - 1]
                     return acc_points[level]
@@ -183,7 +184,7 @@ app.post('/scores', (req, res) => {
                     total_stars: new_wins + journey_stars + score_stars,
                     highest_journey_level_won: highest_journey_level_won
                 }
-                console.log(data);
+                //console.log(data)
                 
                 // update total score in the user collection
                 db.collection('users').update({ user_id: user_id }, { $set: data }, { upsert: true }) // add wins for this 
