@@ -155,7 +155,7 @@ app.post('/scores', (req, res) => {
             var losesToUsers = _.map(lost_games, function (res) { return res.user_id })
 
             db.collection('users').findOne({ user_id: user_id }, (err, user) => {
-                if (err || !user) {
+                if (err) {
                     console.log(err)
                     return cb(err)
                 }
@@ -169,6 +169,11 @@ app.post('/scores', (req, res) => {
 
                 const score_stars = Math.floor(total_score / 1000)
                 const journey_stars = get_accumulated_journey_stars(highest_journey_level_won)
+
+                // if the user does not exist, create a dummy user to be able to reuse the logic below
+                if (!user) {
+                    user = {}
+                }
 
                 const old_wins = (user.total_wins || 0)
                 const new_wins = old_wins + wins
