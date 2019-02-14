@@ -146,11 +146,11 @@ app.post('/scores', (req, res) => {
         get_scores({ seed: seed }, (err_load, result) => {
             if (err_load) console.log('Could not load scores from database! Error: ' + err)
             
-            var won_games = _.filter(result, function (res) { return score > res.score })
+            var won_games = _.filter(result, function (res) { return game_mode != 1 && score > res.score })
             var wins = won_games.length
             var winsOverUsers = _.map(won_games, function (res) { return res.user_id })
 
-            var lost_games = _.filter(result, function (res) { return score < res.score })
+            var lost_games = _.filter(result, function (res) { return game_mode != 1 && score < res.score })
             var losses = lost_games.length
             var losesToUsers = _.map(lost_games, function (res) { return res.user_id })
 
@@ -197,8 +197,8 @@ app.post('/scores', (req, res) => {
 
             // update total score in the user collection
             //db.collection('users').update({ user_id: user_id }, { $inc: { total_wins: wins }, $set: { user_name: user_name, total_score: total_score, journey_stars: journey_stars, score_stars: score_stars } }, { upsert: true }) // add wins for this user
-            db.collection('users').update({ user_id: { $in: losesToUsers } }, { $inc: { total_wins: 1, total_stars: 1 } }, { multi: true }) // increase wins for all users with greater scores
-            db.collection('users').update({ user_id: { $in: winsOverUsers } }, { $inc: { total_losses: 1 } }, { multi: true }) // increase losses for all users with lesser scores
+            if (losesToUsers.length > 0) db.collection('users').update({ user_id: { $in: losesToUsers } }, { $inc: { total_wins: 1, total_stars: 1 } }, { multi: true }) // increase wins for all users with greater scores
+            if (winsOverUsers.length > 0) db.collection('users').update({ user_id: { $in: winsOverUsers } }, { $inc: { total_losses: 1 } }, { multi: true }) // increase losses for all users with lesser scores
 
             // update daily score in the daily score collection
             //db.collection('daily_wins').update({ user_id: user_id, year: year, month: month, day: day }, { $inc: { wins: wins } }, { upsert: true }) // add wins for this user
