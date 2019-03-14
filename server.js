@@ -128,6 +128,7 @@ app.post('/scores', (req, res) => {
     const actions = req.body.actions
     const total_score = parseInt(req.body.total_score || 0)
     const highest_journey_level_won = parseInt(req.body.highest_journey_level_won || 0)
+    const highest_journey_score_won = parseInt(req.body.highest_journey_score_won || 0)
     db.collection('scores').save({
         user_id: user_id,
         user_name: user_name,
@@ -187,7 +188,8 @@ app.post('/scores', (req, res) => {
                     journey_stars: journey_stars,
                     score_stars: score_stars,
                     total_stars: new_wins + journey_stars + score_stars,
-                    highest_journey_level_won: highest_journey_level_won
+                    highest_journey_level_won: highest_journey_level_won,
+                    highest_journey_score_won: highest_journey_score_won
                 }
                 //console.log(data)
                 
@@ -252,7 +254,7 @@ app.get('/rank/:user_id', (req, res) => {
     db.collection('users').find().sort({ total_stars: -1, total_wins: -1 }).toArray((err, result) => {
         if (err) {
             console.log(err)
-            return cb(err)
+            return res.json({})
         }
 
         const me = _.find(result, function (user) {
@@ -280,5 +282,28 @@ app.get('/rank/:user_id', (req, res) => {
             total_losses: me.total_losses,
             total_stars: me.total_stars
         })
+    })
+})
+
+app.get('/strive_highscores', (req, res) => {
+    db.collection('users').find().sort({ highest_journey_level_won: -1, highest_journey_score_won: -1 }).toArray((err, result) => {
+        if (err) {
+            console.log(err)
+            return res.json({})
+        }
+
+        const strive_players = _.filter(result, function (r) {
+            return r.highest_journey_level_won >= 0
+        })
+
+        return res.json(_.map(strive_players, function(p) {
+            return {
+                user_name: p.user_name,
+                user_id: p.user_id,
+                //count: p.user_id,
+                highest_journey_level_won: p.highest_journey_level_won,
+                highest_journey_score_won: p.highest_journey_score_won
+            }
+        }))
     })
 })
