@@ -273,10 +273,29 @@ app.get('/rank/:user_id', (req, res) => {
             })
         }
 
+        /*
         // const rank = _.findIndex(result, function (user) { return user.user_id == user_id }) // no tie breaking (ie. two users with same number of wins will get different rank)
         const rank = _.findIndex(result, function (user) {
             return user.total_stars == me.total_stars // with tie breaking (ie. two users with same number of wins will get the same rank)
         })
+        */
+
+        // const resultWithoutTies = _.unionBy(result, function(r) {
+        //     return r.total_stars
+        // })
+
+        // const rank1 = _.findIndex(resultWithoutTies, function (user) {
+        //     return user.total_stars == me.total_stars
+        // })
+
+        var rank = 0
+        var last_result = 0
+        for (var i = 0; i < result.length; i++) {
+            var r = result[i]
+            if (r.total_stars != last_result) rank++
+            if (r.user_id == user_id) break
+            last_result = r.total_stars
+        }
 
         return res.json({
             rank: rank,
