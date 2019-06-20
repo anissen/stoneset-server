@@ -78,7 +78,7 @@ app.get('/normal', (req, res) => {
     })
 })
 
-app.get('/strive', (req, res) => {
+app.get('/journey', (req, res) => {
     get_scores({ game_mode: 1 }, (err, result) => {
         if (err) return
         res.render('index.ejs', { scores: result, show_all_scores: true })

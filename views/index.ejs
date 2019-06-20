@@ -16,7 +16,7 @@
 
   <% const game_mode_scores = _.groupBy(scores, 'game_mode'); %>
   <% _.forEach(game_mode_scores, function(scores, game_mode) { %>
-  <% const game_mode_string = { '0': 'Normal', '1': 'Strive', '2': 'Survival' }[game_mode]; %>
+  <% const game_mode_string = { '0': 'Normal', '1': 'Journey', '2': 'Survival' }[game_mode]; %>
   <% if (show_all_scores === true) { %>
     <h3><a href="/">Back</a></h3>
     <h3><%= game_mode_string %></h3>
@@ -26,21 +26,36 @@
   <ol>
     <% var i = 0; %>
     <% _.forEach(scores, function(score) { %>
-    <% if (game_mode_string == 'Strive' && score.score < score.strive_goal) return; %>
     <% if (show_all_scores === false && i > 9) return; %>
+    <% if (game_mode_string == 'Journey' && score.score < score.strive_goal) return; %>
     <% i++ %>
     <li>
         <span title="<%= score.year %>-<%= score.month + 1 %>-<%= score.day %>, game #<%= score.game_count %> (seed: <%= score.seed %>)">
-        <% if (game_mode_string == 'Strive') { %>
+        <% if (game_mode_string == 'Journey') { %>
             <%= score.strive_goal %><span style="color:gray"> (+<%= (score.score - score.strive_goal) %>)</span>
         <% } else { %>
             <%= score.score %>
+            <%= score.total_stars %>
         <% } %>
         <%= score.user_name %></span>
     </li>
     <% }) %>
   </ol>
-  <% }) %>
+  <% if (show_all_scores && game_mode_string == 'Journey') { %>
+    <h4>Failed Attempts</h4>
+    <ol>
+        <% _.forEach(scores, function(score) { %>
+        <% if (score.score < score.strive_goal) { %>
+        <li>
+            <span title="<%= score.year %>-<%= score.month + 1 %>-<%= score.day %>, game #<%= score.game_count %> (seed: <%= score.seed %>)">
+            <%= score.strive_goal %><span style="color:red"> (<%= (score.score - score.strive_goal) %>)</span>
+            <%= score.user_name %></span>
+        </li>
+        <% } %>
+        <% }) %>
+    </ol>
+<% } %>
+<% }) %>
 
 </body>
 </html>
