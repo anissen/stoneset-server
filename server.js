@@ -45,7 +45,7 @@ function get_scores(query, cb) {
             console.log(err)
             return cb(err)
         }
-        return cb(null, result)
+        return cb(null, _.filter(result, function(r) { return (r.game_mode < 3) }))
     })
 }
 
