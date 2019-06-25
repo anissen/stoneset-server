@@ -329,3 +329,14 @@ app.get('/strive_highscores', (req, res) => {
         }))
     })
 })
+
+app.get('/best_highscores', (req, res) => {
+    get_scores({ game_mode: 0 }, (err, result) => {
+        if (err) {
+            console.log(err)
+            return res.json({})
+        }
+        var top100 = _.slice(result, 0, 100)
+        return res.json(top100)
+    })
+})
