@@ -289,11 +289,17 @@ app.get('/rank/:user_id', (req, res) => {
         // })
 
         var rank = 0
+        var tie_count = 0
         var last_result = 0
         for (var i = 0; i < result.length; i++) {
             var r = result[i]
             if (r.user_id == user_id) break
-            if (r.total_stars != last_result) rank++
+            if (r.total_stars == last_result) {
+                tie_count++
+            } else {
+                rank += 1 + tie_count
+                tie_count = 0
+            }
             last_result = r.total_stars
         }
 
